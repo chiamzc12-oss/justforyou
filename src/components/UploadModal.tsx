@@ -27,7 +27,12 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onDrop as any,
-    accept: { 'image/*': [] },
+    accept: { 
+      'image/jpeg': ['.jpeg', '.jpg'], 
+      'image/png': ['.png'], 
+      'image/webp': ['.webp'], 
+      'image/gif': ['.gif'] 
+    },
     maxFiles: 1,
   } as any);
 
@@ -82,30 +87,11 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
           </h2>
 
           {!file ? (
-            <label
-              className="border-4 border-dashed rounded-3xl p-10 text-center cursor-pointer transition-all duration-300 border-pink-200 hover:border-pink-300 hover:bg-pink-50/50 block"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                const f = e.dataTransfer.files?.[0];
-                if (f && f.type.startsWith('image/')) {
-                  setFile(f);
-                  setPreviewUrl(URL.createObjectURL(f));
-                }
-              }}
+            <div 
+              {...getRootProps()} 
+              className={`border-4 border-dashed rounded-3xl p-10 text-center cursor-pointer transition-all duration-300 ${isDragActive ? 'border-primary-pink bg-pink-50' : 'border-pink-200 hover:border-pink-300 hover:bg-pink-50/50'}`}
             >
-              <input 
-                type="file" 
-                accept="image/*" 
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) {
-                    setFile(f);
-                    setPreviewUrl(URL.createObjectURL(f));
-                  }
-                }}
-              />
+              <input {...getInputProps()} />
               <UploadCloud size={48} className="mx-auto text-pink-300 mb-4" />
               <p className="font-sans font-bold text-gray-600">
                 Tap or drag a cute photo here!
@@ -113,7 +99,7 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
               <p className="text-sm text-gray-400 mt-2 font-medium">
                 Choose from gallery or take a picture
               </p>
-            </label>
+            </div>
           ) : (
             <div className="space-y-6">
               <div className="aspect-video w-full overflow-hidden rounded-2xl border-2 border-pink-100 bg-gray-50 flex items-center justify-center relative">
