@@ -10,6 +10,7 @@ import { HeartGallery } from "./components/HeartGallery";
 import { TwinkleMinigame } from "./components/TwinkleMinigame";
 import { BirthdayLetter } from "./components/BirthdayLetter";
 import { UploadModal } from "./components/UploadModal";
+import { DaysCounter } from "./components/DaysCounter";
 import { api, Photo } from "./api";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -60,6 +61,8 @@ export default function App() {
     <div className="min-h-screen relative pb-28 font-sans overflow-hidden">
       {/* Decorative top border */}
       <div className="h-2 w-full bg-gradient-to-r from-pastel-pink via-pastel-blue to-pastel-yellow" />
+
+      <DaysCounter />
 
       {/* Main Content Area */}
       <main className="container mx-auto">

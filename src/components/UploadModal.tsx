@@ -79,7 +79,7 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
             >
               <input 
                 type="file" 
-                accept="image/*, video/*" 
+                accept="image/*, image/heic, image/heif" 
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50"
                 onChange={(e) => {
                   try {
@@ -105,13 +105,7 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
           ) : (
             <div className="space-y-6">
               <div className="aspect-video w-full overflow-hidden rounded-2xl border-2 border-pink-100 bg-gray-50 flex items-center justify-center relative">
-                {previewWidth && (
-                  file?.type.startsWith("video/") ? (
-                    <video src={previewWidth} className="w-full h-full object-cover" autoPlay loop muted playsInline />
-                  ) : (
-                    <img src={previewWidth} alt="Preview" className="w-full h-full object-cover" />
-                  )
-                )}
+                {previewWidth && <img src={previewWidth} alt="Preview" className="w-full h-full object-cover" />}
                 <button 
                   onClick={() => { setFile(null); setPreviewUrl(null); }}
                   className="absolute top-2 right-2 bg-white/80 p-1.5 rounded-full text-red-400 hover:text-red-500 hover:bg-white transition-colors"

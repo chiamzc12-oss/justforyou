@@ -12,11 +12,6 @@ export interface Letter {
   content: string;
 }
 
-export const isVideo = (url: string | undefined): boolean => {
-  if (!url) return false;
-  return /\.(mp4|webm|ogg|mov)$/i.test(url);
-};
-
 // Ensure the local API fallback works if Supabase is not configured
 const API_BASE = "/api";
 
@@ -85,21 +80,12 @@ export const api = {
 
     // 1. Upload to Supabase Storage
       let fileExt = "jpg";
-      if (file.name && file.name.includes(".")) {
+      if (file.name) {
          const parts = file.name.split(".");
          if (parts.length > 1) {
             fileExt = parts.pop() || "jpg";
          }
-      } else if (file.type) {
-         fileExt = file.type.split("/")[1] || "jpg";
-         if (fileExt === "quicktime") fileExt = "mov";
       }
-      
-      // Ensure videos get a proper extension for detection
-      if (file.type && file.type.startsWith("video/") && !["mp4", "mov", "webm", "ogg"].includes(fileExt.toLowerCase())) {
-         fileExt = "mp4";
-      }
-      
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage

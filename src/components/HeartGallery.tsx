@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Shuffle } from "lucide-react";
-import { Photo, isVideo } from "../api";
+import { Photo } from "../api";
 
 interface HeartGalleryProps {
   photos: Photo[];
@@ -11,7 +11,7 @@ interface HeartGalleryProps {
 export function HeartGallery({ photos, onDelete }: HeartGalleryProps) {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [displayedSpots, setDisplayedSpots] = useState<Photo[]>([]);
-  const totalSpots = 34;
+  const totalSpots = 27;
 
   useEffect(() => {
     if (!photos || photos.length === 0) return;
@@ -87,18 +87,6 @@ export function HeartGallery({ photos, onDelete }: HeartGalleryProps) {
 
   return (
     <div className="w-full min-h-[80vh] flex flex-col items-center justify-center p-4">
-      <style>
-        {`
-          @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.5); }
-            100% { opacity: 1; transform: scale(1); }
-          }
-          @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-          }
-        `}
-      </style>
       <div className="text-center mb-6 relative w-full flex items-center justify-center">
         <div>
           <h2 className="text-3xl font-cute font-bold text-pink-500 mb-2">
@@ -129,32 +117,25 @@ export function HeartGallery({ photos, onDelete }: HeartGalleryProps) {
                 currentSpotAt++;
                 const isEven = currentSpotAt % 2 === 0;
                 return (
-                  <div
+                  <motion.div
                     key={`${rIndex}-${cIndex}`}
-                    className={`relative aspect-square w-10 sm:w-16 md:w-20 lg:w-24 rounded-lg sm:rounded-xl overflow-hidden shadow-md cursor-pointer border-[3px] border-white transition-all duration-300 hover:shadow-xl hover:scale-110 hover:z-10 ${isEven ? 'hover:rotate-3' : 'hover:-rotate-3'}`}
-                    style={{ animation: `popIn 0.5s ease-out ${currentSpotAt * 0.03}s forwards`, opacity: 0 }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: currentSpotAt * 0.03, type: "spring", stiffness: 100 }}
+                    whileHover={{ scale: 1.15, zIndex: 10, rotate: isEven ? 5 : -5 }}
+                    className="relative aspect-square w-10 sm:w-16 md:w-20 lg:w-24 rounded-lg sm:rounded-xl overflow-hidden shadow-md hover:shadow-xl cursor-pointer border-[3px] border-white bg-gray-100"
                     onClick={() => photo && setSelectedPhoto(photo)}
                   >
                     {photo && (
-                      isVideo(photo.url) ? (
-                        <video 
-                          key={photo.id}
-                          src={photo.url} 
-                          style={{ animation: 'fadeIn 0.5s ease-out forwards' }}
-                          className="w-full h-full object-cover opacity-0 pointer-events-none"
-                          autoPlay loop muted playsInline
-                        />
-                      ) : (
-                        <img 
-                          key={photo.id}
-                          src={photo.url} 
-                          alt="Memory tile" 
-                          style={{ animation: 'fadeIn 0.5s ease-out forwards' }}
-                          className="w-full h-full object-cover opacity-0"
-                        />
-                      )
+                      <img 
+                        key={photo.id}
+                        src={photo.url} 
+                        alt="Memory tile" 
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                      />
                     )}
-                  </div>
+                  </motion.div>
                 );
               } else {
                 return <div key={`${rIndex}-${cIndex}`} className="w-10 sm:w-16 md:w-20 lg:w-24 aspect-square" />;
@@ -201,11 +182,7 @@ export function HeartGallery({ photos, onDelete }: HeartGalleryProps) {
               </button>
               
               <div className="w-full rounded-2xl bg-gray-100 mb-4 flex items-center justify-center overflow-hidden">
-                {isVideo(selectedPhoto.url) ? (
-                  <video src={selectedPhoto.url} autoPlay loop controls playsInline className="w-full h-auto max-h-[60vh] object-contain" />
-                ) : (
-                  <img src={selectedPhoto.url} alt="Memory Zoomed" className="w-full h-auto max-h-[60vh] object-contain" />
-                )}
+                <img src={selectedPhoto.url} alt="Memory Zoomed" className="w-full h-auto max-h-[60vh] object-contain" />
               </div>
               {selectedPhoto.caption && (
                 <p className="text-center font-cute text-xl text-gray-700 bg-pink-50 p-4 rounded-xl border border-pink-100/50 break-words">
