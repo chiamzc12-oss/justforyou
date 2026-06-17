@@ -26,3 +26,17 @@ CREATE POLICY "Public Deletes" ON storage.objects FOR DELETE USING ( bucket_id =
 
 -- 6. Add Delete Policies for photos table
 CREATE POLICY "Allow public delete access" ON public.photos FOR DELETE USING (true);
+
+-- 7. Create letters table for the birthday wish
+CREATE TABLE public.letters (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  content text NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 8. Enable RLS and add policies for letters table
+ALTER TABLE public.letters ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access on letters" ON public.letters FOR SELECT USING (true);
+CREATE POLICY "Allow public insert access on letters" ON public.letters FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update access on letters" ON public.letters FOR UPDATE USING (true);

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Navigation } from "./components/Navigation";
 import { GiftGallery } from "./components/GiftGallery";
 import { TwinkleMinigame } from "./components/TwinkleMinigame";
+import { BirthdayLetter } from "./components/BirthdayLetter";
 import { UploadModal } from "./components/UploadModal";
 import { api, Photo } from "./api";
 import { AnimatePresence, motion } from "motion/react";
@@ -63,6 +64,7 @@ export default function App() {
       <main className="container mx-auto">
         {activeTab === "gallery" && <GiftGallery photos={photos} onDelete={handleDeletePhoto} />}
         {activeTab === "minigame" && <TwinkleMinigame />}
+        {activeTab === "letter" && <BirthdayLetter />}
       </main>
 
       <Navigation 
