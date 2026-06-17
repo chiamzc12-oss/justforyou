@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;600;700&family=Pacifico&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-pastel-pink: #ffd1dc;
+  --color-pastel-blue: #bfe6ff;
+  --color-pastel-yellow: #fff3b0;
+  --color-pastel-purple: #e0b0ff;
+  --color-primary-pink: #ff85a2;
+  --color-cute-dark: #4a4a4a;
+  
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-cute: "Fredoka", ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Pacifico", cursive;
+}
+
+body {
+  background-color: #fff0f5; /* Lavender blush */
+  background-image: 
+    radial-gradient(#ffc0cb 2px, transparent 2px),
+    radial-gradient(#ffc0cb 2px, transparent 2px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+  color: var(--color-cute-dark);
+}
+
+/* Custom scrollbar for cuteness */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #fff0f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #ff85a2;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff6b8d;
+}

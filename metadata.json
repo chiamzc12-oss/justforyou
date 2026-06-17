@@ -1,0 +1,6 @@
+{
+  "name": "Our Joyous Memories",
+  "description": "A cute, Pop Mart inspired interactive timeline and photo gallery application.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
