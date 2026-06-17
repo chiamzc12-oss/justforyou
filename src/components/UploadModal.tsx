@@ -74,13 +74,13 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
           </h2>
 
           {!file ? (
-            <label 
-              className="border-4 border-dashed rounded-3xl p-10 text-center relative overflow-hidden transition-all duration-300 border-pink-200 hover:border-pink-300 hover:bg-pink-50/50 block border-box cursor-pointer"
+            <div 
+              className="border-4 border-dashed rounded-3xl p-10 text-center relative overflow-hidden transition-all duration-300 border-pink-200 hover:border-pink-300 hover:bg-pink-50/50 block border-box"
             >
               <input 
                 type="file" 
-                accept="image/*" 
-                className="hidden"
+                accept="image/*, image/heic, image/heif" 
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50"
                 onChange={(e) => {
                   try {
                     const f = e.target.files?.[0];
@@ -101,7 +101,7 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
               <p className="text-sm text-gray-400 mt-2 font-medium pointer-events-none">
                 Choose from gallery or take a picture
               </p>
-            </label>
+            </div>
           ) : (
             <div className="space-y-6">
               <div className="aspect-video w-full overflow-hidden rounded-2xl border-2 border-pink-100 bg-gray-50 flex items-center justify-center relative">

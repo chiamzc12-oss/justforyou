@@ -36,7 +36,13 @@ export const api = {
   async uploadPhoto(file: File, caption: string): Promise<Photo> {
     if (supabase) {
       // 1. Upload to Supabase Storage
-      const fileExt = file.name ? file.name.split(".").pop() : "jpg";
+      let fileExt = "jpg";
+      if (file.name) {
+         const parts = file.name.split(".");
+         if (parts.length > 1) {
+            fileExt = parts.pop() || "jpg";
+         }
+      }
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -80,7 +86,7 @@ export const api = {
     }
 
     const formData = new FormData();
-    formData.append("photo", file);
+    formData.append("photo", file, file.name || "image.jpg");
     formData.append("caption", caption);
 
     const res = await fetch(`${API_BASE}/photos`, {
