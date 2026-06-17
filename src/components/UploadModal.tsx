@@ -25,8 +25,15 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
       onSuccess();
       handleClose();
     } catch (e: any) {
-      console.error(e);
-      setUploadError(e.message || "Failed to upload. Server error.");
+      console.error("Upload error caught:", e);
+      // Give as much detail as possible
+      let details = e.message;
+      if (!details && typeof e === 'object') {
+         details = JSON.stringify(e);
+      } else if (!details) {
+         details = String(e);
+      }
+      setUploadError(details || "Failed to upload. Unknown error.");
     } finally {
       setIsUploading(false);
     }
@@ -67,29 +74,34 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
           </h2>
 
           {!file ? (
-            <div 
-              className="border-4 border-dashed rounded-3xl p-10 text-center relative overflow-hidden transition-all duration-300 border-pink-200 hover:border-pink-300 hover:bg-pink-50/50 block"
+            <label 
+              className="border-4 border-dashed rounded-3xl p-10 text-center relative overflow-hidden transition-all duration-300 border-pink-200 hover:border-pink-300 hover:bg-pink-50/50 block border-box cursor-pointer"
             >
               <input 
                 type="file" 
                 accept="image/*" 
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                className="hidden"
                 onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) {
-                    setFile(f);
-                    setPreviewUrl(URL.createObjectURL(f));
+                  try {
+                    const f = e.target.files?.[0];
+                    if (f) {
+                      setFile(f);
+                      setPreviewUrl(URL.createObjectURL(f));
+                    }
+                  } catch (err) {
+                    console.error("File selection error:", err);
+                    setUploadError(`Failed to read file: ${String(err)}`);
                   }
                 }}
               />
-              <UploadCloud size={48} className="mx-auto text-pink-300 mb-4" />
-              <p className="font-sans font-bold text-gray-600">
+              <UploadCloud size={48} className="mx-auto text-pink-300 mb-4 pointer-events-none" />
+              <p className="font-sans font-bold text-gray-600 pointer-events-none">
                 Tap here to select a cute photo!
               </p>
-              <p className="text-sm text-gray-400 mt-2 font-medium">
+              <p className="text-sm text-gray-400 mt-2 font-medium pointer-events-none">
                 Choose from gallery or take a picture
               </p>
-            </div>
+            </label>
           ) : (
             <div className="space-y-6">
               <div className="aspect-video w-full overflow-hidden rounded-2xl border-2 border-pink-100 bg-gray-50 flex items-center justify-center relative">
@@ -116,7 +128,7 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
               </div>
 
               {uploadError && (
-                <div className="bg-red-50 text-red-500 font-sans font-medium text-sm p-3 rounded-lg border border-red-200">
+                <div className="bg-red-50 text-red-500 font-sans font-medium text-sm p-3 rounded-lg border border-red-200 break-words w-full shadow-inner">
                   {uploadError}
                 </div>
               )}

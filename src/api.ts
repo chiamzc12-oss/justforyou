@@ -47,7 +47,7 @@ export const api = {
         });
         
       if (uploadError) {
-        throw new Error(`Storage Error: ${uploadError.message}. Did you create the 'pictures' bucket and make it public?`);
+        throw new Error(`Storage Error: ${uploadError.message || JSON.stringify(uploadError)}. Did you create the 'pictures' bucket and make it public?`);
       }
 
       // 2. Get Public URL
