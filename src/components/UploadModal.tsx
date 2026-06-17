@@ -88,13 +88,23 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
 
           {!file ? (
             <div 
-              {...getRootProps()} 
-              className={`border-4 border-dashed rounded-3xl p-10 text-center cursor-pointer transition-all duration-300 ${isDragActive ? 'border-primary-pink bg-pink-50' : 'border-pink-200 hover:border-pink-300 hover:bg-pink-50/50'}`}
+              className="border-4 border-dashed rounded-3xl p-10 text-center relative overflow-hidden transition-all duration-300 border-pink-200 hover:border-pink-300 hover:bg-pink-50/50 block"
             >
-              <input {...getInputProps()} />
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) {
+                    setFile(f);
+                    setPreviewUrl(URL.createObjectURL(f));
+                  }
+                }}
+              />
               <UploadCloud size={48} className="mx-auto text-pink-300 mb-4" />
               <p className="font-sans font-bold text-gray-600">
-                Tap or drag a cute photo here!
+                Tap here to select a cute photo!
               </p>
               <p className="text-sm text-gray-400 mt-2 font-medium">
                 Choose from gallery or take a picture
