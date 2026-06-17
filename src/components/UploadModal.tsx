@@ -1,5 +1,4 @@
-import { useState, useCallback } from "react";
-import { useDropzone } from "react-dropzone";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, UploadCloud, Loader2 } from "lucide-react";
 import { api } from "../api";
@@ -16,25 +15,6 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
   const [caption, setCaption] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const f = acceptedFiles[0];
-    if (f) {
-      setFile(f);
-      setPreviewUrl(URL.createObjectURL(f));
-    }
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: onDrop as any,
-    accept: { 
-      'image/jpeg': ['.jpeg', '.jpg'], 
-      'image/png': ['.png'], 
-      'image/webp': ['.webp'], 
-      'image/gif': ['.gif'] 
-    },
-    maxFiles: 1,
-  } as any);
 
   const handleUpload = async () => {
     if (!file) return;

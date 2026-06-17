@@ -36,13 +36,19 @@ export const api = {
   async uploadPhoto(file: File, caption: string): Promise<Photo> {
     if (supabase) {
       // 1. Upload to Supabase Storage
-      const fileExt = file.name.split(".").pop();
+      const fileExt = file.name ? file.name.split(".").pop() : "jpg";
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from("pictures")
-        .upload(fileName, file);
+        .upload(fileName, file, {
+           cacheControl: "3600",
+           upsert: false
+        });
         
-      if (uploadError) throw new Error(uploadError.message);
+      if (uploadError) {
+        throw new Error(`Storage Error: ${uploadError.message}. Did you create the 'pictures' bucket and make it public?`);
+      }
 
       // 2. Get Public URL
       const { data: publicUrlData } = supabase.storage
@@ -61,7 +67,9 @@ export const api = {
         .select()
         .single();
         
-      if (dbError) throw new Error(dbError.message);
+      if (dbError) {
+        throw new Error(`Database Error: ${dbError.message}. Check your RLS policies for 'photos' table.`);
+      }
       
       return {
         id: dbData.id,
