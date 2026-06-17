@@ -82,20 +82,38 @@ export function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
           </h2>
 
           {!file ? (
-            <div 
-              {...getRootProps()} 
-              className={`border-4 border-dashed rounded-3xl p-10 text-center cursor-pointer transition-all duration-300
-                ${isDragActive ? 'border-primary-pink bg-pink-50' : 'border-pink-200 hover:border-pink-300 hover:bg-pink-50/50'}`}
+            <label
+              className="border-4 border-dashed rounded-3xl p-10 text-center cursor-pointer transition-all duration-300 border-pink-200 hover:border-pink-300 hover:bg-pink-50/50 block"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const f = e.dataTransfer.files?.[0];
+                if (f && f.type.startsWith('image/')) {
+                  setFile(f);
+                  setPreviewUrl(URL.createObjectURL(f));
+                }
+              }}
             >
-              <input {...getInputProps()} />
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) {
+                    setFile(f);
+                    setPreviewUrl(URL.createObjectURL(f));
+                  }
+                }}
+              />
               <UploadCloud size={48} className="mx-auto text-pink-300 mb-4" />
               <p className="font-sans font-bold text-gray-600">
-                Drag & drop a cute photo here!
+                Tap or drag a cute photo here!
               </p>
               <p className="text-sm text-gray-400 mt-2 font-medium">
-                or click to browse files
+                Choose from gallery or take a picture
               </p>
-            </div>
+            </label>
           ) : (
             <div className="space-y-6">
               <div className="aspect-video w-full overflow-hidden rounded-2xl border-2 border-pink-100 bg-gray-50 flex items-center justify-center relative">
