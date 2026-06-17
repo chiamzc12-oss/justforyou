@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Photo } from "../api";
+import { Photo, isVideo } from "../api";
 
 interface GiftGalleryProps {
   photos: Photo[];
@@ -10,20 +10,102 @@ interface GiftGalleryProps {
 export function GiftGallery({ photos, onDelete }: GiftGalleryProps) {
   const [stage, setStage] = useState<'gift' | 'card' | 'gallery'>('gift');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  useEffect(() => {
+    if (stage !== 'gallery' || !scrollRef.current) return;
+    
+    let animationFrameId: number;
+    let lastTime = performance.now();
+    const speed = 0.05; // pixels per ms
+
+    const scroll = (time: number) => {
+      const delta = time - lastTime;
+      lastTime = time;
+
+      if (!isHovering && !isDragging && !selectedPhoto && scrollRef.current) {
+        scrollRef.current.scrollLeft += speed * delta;
+        
+        // Loop back
+        if (scrollRef.current.scrollLeft >= (scrollRef.current.scrollWidth - scrollRef.current.clientWidth)) {
+          scrollRef.current.scrollLeft = 0;
+        }
+      }
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    animationFrameId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [stage, isHovering, isDragging, selectedPhoto]);
+
+  const [dragMoved, setDragMoved] = useState(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setDragMoved(false);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    setIsHovering(false);
+    setDragMoved(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    // don't reset dragMoved here so onClick can read it, onClick runs right after.
+    // we can reset it next frame or just let mousedown reset it.
+    setTimeout(() => setDragMoved(false), 50);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2; // Scroll-fast
+    if (Math.abs(walk) > 5) setDragMoved(true);
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setDragMoved(false);
+    setStartX(e.touches[0].pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    if (Math.abs(walk) > 5) setDragMoved(true);
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    setTimeout(() => setDragMoved(false), 50);
+  };
 
   return (
     <div className="w-full h-[80vh] flex items-center justify-center overflow-hidden relative">
       <style>
         {`
-          @keyframes slideMarquee {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
+          .hide-scrollbar::-webkit-scrollbar {
+            display: none;
           }
-          .animate-marquee {
-            animation: slideMarquee ${photos.length > 0 ? photos.length * 8 : 20}s linear infinite;
-          }
-          .pause-marquee {
-            animation-play-state: paused;
+          .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
           }
         `}
       </style>
@@ -83,21 +165,32 @@ export function GiftGallery({ photos, onDelete }: GiftGalleryProps) {
               
               <div className="absolute left-0 w-[200%] h-1 bg-amber-800/20 top-1/3 z-0 md:hidden" />
 
-              {/* Looping photos train */}
-              <div className="w-full overflow-hidden flex items-center h-full">
-                 <div
-                   className={`flex gap-8 md:gap-16 min-w-max px-8 animate-marquee ${selectedPhoto ? 'pause-marquee' : ''}`}
-                 >
-                    {/* Double the photos array to create seamless loop */}
+              {/* Looping photos train (Manual Scroll) */}
+              <div 
+                ref={scrollRef}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={handleMouseLeave}
+                onMouseUp={handleMouseUp}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onTouchMove={handleTouchMove}
+                className={`w-full overflow-x-hidden flex items-center h-full px-8 md:px-32 hide-scrollbar ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}>
+                  <div className="flex gap-8 md:gap-16 min-w-max pb-12 pt-8">
                     {[...photos, ...photos, ...photos].map((photo, i) => (
-                       <div key={`${photo.id}-${i}`} className="relative group shrink-0 mt-8">
+                       <div key={`${photo.id}-${i}`} className="relative group shrink-0 mt-8 pointer-events-none">
                           {/* Clothespeg */}
                           <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-3 h-8 bg-amber-200 border border-amber-300 rounded-sm z-10 origin-top shadow-sm rotate-[5deg] md:block" />
                           
                           {/* Polaroid */}
                           <div 
-                             onClick={() => setSelectedPhoto(photo)}
-                             className="bg-white p-3 md:p-4 pb-8 md:pb-12 rounded-sm shadow-xl w-48 md:w-64 lg:w-72 aspect-[3/4] origin-top rotate-[-2deg] transition-transform duration-300 group-hover:rotate-0 group-hover:scale-110 group-hover:z-40 cursor-pointer relative"
+                             onClick={(e) => {
+                               if(!dragMoved) {
+                                 setSelectedPhoto(photo);
+                               }
+                             }}
+                             className="bg-white p-3 md:p-4 pb-8 md:pb-12 rounded-sm shadow-xl w-48 md:w-64 lg:w-72 aspect-[3/4] origin-top rotate-[-2deg] transition-all duration-300 md:group-hover:rotate-0 md:group-hover:scale-110 md:group-hover:z-40 cursor-pointer relative pointer-events-auto"
                           >
                              {onDelete && (
                                <button 
@@ -111,9 +204,13 @@ export function GiftGallery({ photos, onDelete }: GiftGalleryProps) {
                                  ✕
                                </button>
                              )}
-                             <div className="w-full h-full bg-pink-50 overflow-hidden mb-3 md:mb-4 rounded-sm border border-gray-100 relative">
+                             <div className="w-full h-full bg-pink-50 overflow-hidden mb-3 md:mb-4 rounded-sm border border-gray-100 relative pointer-events-none select-none">
                                {photo.url ? (
-                                  <img src={photo.url} alt="Memory" className="w-full h-full object-cover" />
+                                  isVideo(photo.url) ? (
+                                    <video src={photo.url} className="w-full h-full object-cover" autoPlay loop muted playsInline />
+                                  ) : (
+                                    <img src={photo.url} alt="Memory" className="w-full h-full object-cover" />
+                                  )
                                ) : (
                                   <div className="w-full h-full flex flex-col items-center justify-center text-5xl bg-pink-50/50">
                                     <span className="animate-pulse">💖</span>
@@ -176,7 +273,11 @@ export function GiftGallery({ photos, onDelete }: GiftGalleryProps) {
                        )}
                        <div className="w-full h-full bg-pink-50 overflow-hidden mb-4 rounded-sm border border-gray-100 flex-1 min-h-0 flex items-center justify-center pointer-events-none select-none">
                          {selectedPhoto.url ? (
-                            <img src={selectedPhoto.url} alt="Memory Zoomed" className="w-full h-full object-contain" />
+                            isVideo(selectedPhoto.url) ? (
+                              <video src={selectedPhoto.url} className="w-full h-full object-contain pointer-events-auto" autoPlay loop controls playsInline />
+                            ) : (
+                              <img src={selectedPhoto.url} alt="Memory Zoomed" className="w-full h-full object-contain" />
+                            )
                          ) : (
                             <span className="animate-pulse text-6xl">💖</span>
                          )}

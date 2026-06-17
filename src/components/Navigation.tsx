@@ -1,4 +1,4 @@
-import { Camera, CalendarHeart, Gamepad2, Stars, MailOpen } from "lucide-react";
+import { Camera, CalendarHeart, Gamepad2, Stars, MailOpen, Heart } from "lucide-react";
 
 interface NavProps {
   activeTab: string;
@@ -9,6 +9,7 @@ interface NavProps {
 export function Navigation({ activeTab, setActiveTab, onUploadClick }: NavProps) {
   const navItems = [
     { id: "gallery", label: "Gallery", icon: Camera },
+    { id: "heart", label: "Heart", icon: Heart },
     { id: "letter", label: "Wish", icon: MailOpen },
     { id: "minigame", label: "Minigame", icon: Gamepad2 },
   ];
